@@ -37,12 +37,15 @@ namespace Dungeons_and_Dragons.Tables
         {
             var nextElementFirstIndex = _dicesToRoll.MinRoll();
 
-            foreach (var item in fromTable)
+            using (QcDebug.TimeProfiler.Instance.Max("Roll Table Genric Get").Start(operationsCount: fromTable.Count))
             {
-                if ((rollResult >= nextElementFirstIndex) && (rollResult < (nextElementFirstIndex + item.Chances)))
-                    return item;
+                foreach (var item in fromTable)
+                {
+                    if ((rollResult >= nextElementFirstIndex) && (rollResult < (nextElementFirstIndex + item.Chances)))
+                        return item;
 
-                nextElementFirstIndex += item.Chances;
+                    nextElementFirstIndex += item.Chances;
+                }
             }
 
             return null;//fromTable.TryGet(0);
