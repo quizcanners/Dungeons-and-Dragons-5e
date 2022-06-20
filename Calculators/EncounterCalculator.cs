@@ -244,7 +244,7 @@ namespace Dungeons_and_Dragons.Calculators
                     _monsterId.InspectInList(ref edited, index);
                 else
                 {
-                    "CR".PegiLabel(35).Edit_Enum(ref fallbackCR, x => x.GetReadableString(), width: 30);
+                    "CR".PegiLabel(35).Edit_Enum(ref fallbackCR, x => x.GetReadableString(), valueWidth: 30);
                     this.inspect_Name();
                 }
             }
