@@ -15,7 +15,7 @@ namespace Dungeons_and_Dragons.Tables
 
         public RolledTable.Result result = new();
 
-        private RandomElementsRollTablesDictionary Tables => Singleton.TryGetValue<Singleton_DnD, RandomElementsRollTablesDictionary>(s => s.DnDPrototypes.RollTables);
+        private RandomElementsRollTablesDictionary Tables => Singleton.GetValue<Singleton_DnD, RandomElementsRollTablesDictionary>(s => s.DnDPrototypes.RollTables);
 
         public void Roll()
         {

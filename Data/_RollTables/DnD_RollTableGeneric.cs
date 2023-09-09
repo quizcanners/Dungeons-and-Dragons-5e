@@ -113,15 +113,16 @@ namespace Dungeons_and_Dragons.Tables
                 {
                     var el = lst[i];
 
-                    if (el != null)
-                        el.SetRangeStart(ref rangeStart);
+                    el?.SetRangeStart(ref rangeStart);
                 }
 
             return rangeStart - 1; ;
         }
 
         #region Inspector
-        protected int _inspectedStuff = -1;
+        //   protected int _inspectedStuff = -1;
+
+        protected readonly pegi.EnterExitContext context = new();
         protected abstract bool EditList();
 
         public virtual void Inspect()
@@ -130,81 +131,77 @@ namespace Dungeons_and_Dragons.Tables
 
             pegi.Nl();
 
-            var endOfRange = GetTotalRange();
-            var lst = List;
-            int groupIndex = -1;
-
-            if ("Dices: {0}".F(_dicesToRoll.ToRollTableDescription(showPossibiliesNumber: true)).PegiLabel().IsEntered(ref _inspectedStuff, ++groupIndex).Nl())
+            using (context.StartContext())
             {
-                "Table: {0} - elements, {1} - total Value".F(lst.Count, _dicesToRoll.MinRoll() - _dicesToRoll.MinRoll()).PegiLabel().Write_Hint();
+
+                var endOfRange = GetTotalRange();
+                var lst = List;
+
+                if ("Dices: {0}".F(_dicesToRoll.ToRollTableDescription(showPossibiliesNumber: true)).PegiLabel().IsEntered().Nl())
+                {
+                    "Table: {0} - elements, {1} - total Value".F(lst.Count, _dicesToRoll.MinRoll() - _dicesToRoll.MinRoll()).PegiLabel().Write_Hint();
+                    pegi.Nl();
+
+                    if (_dicesToRoll == null)
+                    {
+                        if ("Add Dice".PegiLabel().Click())
+                            _dicesToRoll = new List<Dice>() { Dice.D20 };
+                    }
+                    else
+                    {
+                        pegi.Edit_List_Enum(_dicesToRoll, defaultValue: Dice.D20).Nl();
+                    }
+                }
+
+                if ("Table ({0} elements)".F(List.Count).PegiLabel().IsEntered().Nl())
+                {
+                    if (_dicesToRoll.Count > 1)
+                    {
+                        "Avarage Roll: {0}".F(_dicesToRoll.AvargeRoll()).PegiLabel().Nl();
+                        RollTableElementBase.inspectedProbabilities = _dicesToRoll.CalculateRollResultProbabilities();
+                        RollTableElementBase.inspectedMinRoll = _dicesToRoll.MinRoll().Value;
+                    }
+                    else
+                        RollTableElementBase.inspectedProbabilities = null;
+
+                    EditList();
+
+                    if (endOfRange != _dicesToRoll.MaxRoll())
+                        "{0}/{1}".F(endOfRange, _dicesToRoll.MaxRoll()).PegiLabel().Nl();
+                }
+
+                _sheetParcer.Enter_Inspect_AsList();
+                pegi.Nl_ifEntered();
+
+                if (context.IsCurrentEntered)  //"Download from Google Sheet".PegiLabel().isEntered(ref _inspectedStuff, ++groupIndex).nl_ifEntered())
+                {
+                    if (_sheetParcer.IsDownloading())
+                        "Downloading...".PegiLabel().Nl();
+                    else if (_sheetParcer.IsDownloaded && "Update Table".PegiLabel().Click())
+                    {
+                        var slt = List;
+                        _sheetParcer.ToListOverride(ref slt);
+                    }
+                }
+
+                if (!context.IsAnyEntered)
+                {
+                    if (_sheetParcer.IsDownloading())
+                        Icon.Wait.Draw();
+                    else if (_sheetParcer.NeedAttention().IsNullOrEmpty())
+                        Icon.Download.Click(UpdatePrototypes);
+                }
+
                 pegi.Nl();
 
-                if (_dicesToRoll == null)
-                {
-                    if ("Add Dice".PegiLabel().Click())
-                        _dicesToRoll = new List<Dice>() { Dice.D20 };
-                }
-                else
-                {
-                    pegi.Edit_List_Enum(_dicesToRoll, defaultValue: Dice.D20).Nl();
-                }
-            }
-
-            if ("Table ({0} elements)".F(List.Count).PegiLabel().IsEntered(ref _inspectedStuff, ++groupIndex).Nl())
-            {
-                if (_dicesToRoll.Count > 1)
-                {
-                    "Avarage Roll: {0}".F(_dicesToRoll.AvargeRoll()).PegiLabel().Nl();
-                    RollTableElementBase.inspectedProbabilities = _dicesToRoll.CalculateRollResultProbabilities();
-                    RollTableElementBase.inspectedMinRoll = _dicesToRoll.MinRoll().Value;
-                }
-                else
-                    RollTableElementBase.inspectedProbabilities = null;
-
-                EditList();
-
-                if (endOfRange != _dicesToRoll.MaxRoll())
-                    "{0}/{1}".F(endOfRange, _dicesToRoll.MaxRoll()).PegiLabel().Nl();
-            }
-
-            _sheetParcer.Enter_Inspect_AsList(ref _inspectedStuff, ++groupIndex); 
-            pegi.Nl_ifEntered();
-
-            if (_inspectedStuff == groupIndex)  //"Download from Google Sheet".PegiLabel().isEntered(ref _inspectedStuff, ++groupIndex).nl_ifEntered())
-            {
-                if (_sheetParcer.IsDownloading())
-                    "Downloading...".PegiLabel().Nl();
-                else if (_sheetParcer.IsDownloaded && "Update Table".PegiLabel().Click())
-                {
-                    var slt = List;
-                    _sheetParcer.ToListOverride(ref slt);
-                }
-            }
-
-            if (_inspectedStuff == -1) 
-            {
-                if (_sheetParcer.IsDownloading())
-                    Icon.Wait.Draw();
-                else if (_sheetParcer.NeedAttention().IsNullOrEmpty())
-                    Icon.Download.Click(UpdatePrototypes);
-            }
-
-
-            pegi.Nl();
-
-            if (typeof(RollTableElementWithSubTablesBase).IsAssignableFrom(typeof(T)))
-            {
-                if ("Description".PegiLabel().IsEntered(ref _inspectedStuff, ++groupIndex).Nl())
+                if ("Description".PegiLabel().IsConditionally_Entered(canEnter: typeof(RollTableElementWithSubTablesBase).IsAssignableFrom(typeof(T))).Nl())
                 {
                     var el = List[0] as RollTableElementWithSubTablesBase;
-                    if (el != null)
-                    {
-                        el.Description.Nested_Inspect().Nl();
-                    }
+                    el?.Description.Nested_Inspect().Nl();
 
-                    if ("Copy Description to other elements".PegiLabel().ClickConfirm(confirmationTag: "Will override whatever is there in other elements")) 
+                    if ("Copy Description to other elements".PegiLabel().ClickConfirm(confirmationTag: "Will override whatever is there in other elements"))
                     {
-                        foreach(var e in List)
+                        foreach (var e in List)
                         {
                             if (e is RollTableElementWithSubTablesBase sb)
                             {
@@ -213,6 +210,7 @@ namespace Dungeons_and_Dragons.Tables
                         }
                     }
                 }
+                
             }
 
         }

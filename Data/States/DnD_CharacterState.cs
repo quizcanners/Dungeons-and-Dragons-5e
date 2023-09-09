@@ -41,7 +41,7 @@ namespace Dungeons_and_Dragons
         public CharacterState(CharacterSheet.SmartId origin) 
         {
             CharacterId = new CharacterSheet.SmartId();
-            CharacterId.SetEntity(origin);
+            CharacterId.SetEntityId(origin);
         }
     }
 }

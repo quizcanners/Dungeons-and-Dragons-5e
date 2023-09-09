@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Dungeons_and_Dragons
 {
     [ExecuteAlways]
+    [AddComponentMenu("Quiz ñ'Anners/Dungeons And Dragons")]
     public class Singleton_DnD : Singleton.BehaniourBase
     {
         internal const string SO_CREATE_DND = "Dungeons & Dragons/";

@@ -145,7 +145,7 @@ namespace Dungeons_and_Dragons.Tables
         public int Chances = 1;
         [NonSerialized] protected RollResult rangeStart;
 
-        protected SO_DnDPrototypesScriptableObject Data => Singleton.TryGetValue<Singleton_DnD, SO_DnDPrototypesScriptableObject>(s => s.DnDPrototypes);
+        protected SO_DnDPrototypesScriptableObject Data => Singleton.GetValue<Singleton_DnD, SO_DnDPrototypesScriptableObject>(s => s.DnDPrototypes);
 
         public abstract string GetRolledElementName(RanDndSeed seed, IConceptValueProvider provider, bool shortText);
 

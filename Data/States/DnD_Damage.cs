@@ -18,7 +18,7 @@ namespace Dungeons_and_Dragons
         public int Roll(bool isCritical) => DamageDice.Roll().Value + (isCritical ? DamageDice.Roll().Value : 0) + DamageBonus;
 
         #region Inspector
-        public override string ToString() => "Hit: {4} {5} damage.".F(DamageDice.ToDescription(DamageBonus), DamageType);
+        public override string ToString() => "Hit: {0} {1} damage.".F(DamageDice.ToDescription(DamageBonus), DamageType);
         public void InspectInList(ref int edited, int index)
         {
             if (DamageDice.Count == 0)

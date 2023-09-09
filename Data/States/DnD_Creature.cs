@@ -25,7 +25,7 @@ namespace Dungeons_and_Dragons
 
         protected static T GetFallback<T>(Func<SeededFallacks, T> getter, T defaultValue)
         {
-            return Singleton.TryGetValue<Singleton_DnD, T>(valueGetter: s => getter(s.Fallbacks), defaultValue: defaultValue);
+            return Singleton.GetValue<Singleton_DnD, T>(valueGetter: s => getter(s.Fallbacks), defaultValue: defaultValue);
         }
 
         public abstract GridDistance this[SpeedType type] { get; }

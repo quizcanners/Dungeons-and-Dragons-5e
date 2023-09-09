@@ -16,6 +16,6 @@ namespace Dungeons_and_Dragons
         }
 
         protected SO_DnDPrototypesScriptableObject Data
-             => Singleton.TryGetValue<Singleton_DnD, SO_DnDPrototypesScriptableObject>(s => s.DnDPrototypes);
+             => Singleton.GetValue<Singleton_DnD, SO_DnDPrototypesScriptableObject>(s => s.DnDPrototypes);
     }
 }
